@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log in</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=visibility,visibility_off" />
+    <link rel="stylesheet" href="/index.css">
+    <script type="module" src="login/login.js" defer></script>
+</head>
+<body>
+    <div class="login--background">
+        <form class="login" id="login">
+            <div class="contenedor-titulo">
+                <h1>Log In</h1>
+                <div class="minecraft-splash">¡Ingresa Papu :v!</div>
+            </div>
+            <!-- Grupo para el Correo -->
+            <div class="input-group">
+                <label for="correo">Correo Electrónico</label>
+                <input class="input--login" type="email" id="correo" placeholder="Ingresa tu correo">
+            </div>
+            <!-- Grupo para la Contraseña -->
+            <div class="input-group">
+                <label for="password">Contraseña</label>
+                <div class="input-password-container">
+                    <input class="input--login" type="password" id="password" placeholder="Ingresa tu contraseña">
+                    <button type="button" id="btn-ver">
+                        <!-- Agrega el atributo style directamente en la etiqueta para forzarlo -->
+                        <span class="material-symbols-outlined" id="icono-ojo" style="font-family: 'Material Symbols Outlined' !important;">visibility</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="options--login">
+                <div class="checkbox-container">
+                    <input type="checkbox" name="" id="remember"> 
+                    <label for="remember">Remember me</label>
+                </div>
+                <a href="###">Forgot Password?</a>
+            </div>
+            
+            <button type="submit" class="btn--login" id="btn">INGRESAR</button>
+            
+            <div class="options--login">
+                <p>Don´t have an account?</p>
+                <a href="signup/signup.html">Sign Up</a>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>

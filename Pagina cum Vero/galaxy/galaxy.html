@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espacio 3D - Galaxia Interactiva</title>
+    <style>
+        /* 1. Limpiamos la pantalla por completo */
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: sans-serif;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* 2. FORZAMOS AL CANVAS A CAPTURAR LOS CLICKS */
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: 1; /* Se queda en la capa base */
+            display: block;
+        }
+
+        /* 3. EL TEXTO DE ARRIBA YA NO BLOQUEARÁ NADA */
+        #info {
+            position: absolute;
+            top: 15px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            letter-spacing: 1px;
+            
+            /* 🚀 ESTAS DOS LÍNEAS HACEN QUE EL CLICK DETECTE EL CANVAS DE ABAJO */
+            pointer-events: none !important; 
+            z-index: 10; 
+        }
+        .boton--regresar {
+            /* Posicionamiento fijo abajo a la derecha */
+            position: fixed;
+            bottom: 20px;       /* Distancia desde el borde inferior */
+            right: 20px;        /* Distancia desde el borde derecho */
+            z-index: 9999;      /* Asegura que esté por encima de las imágenes u otros elementos */
+
+            /* Diseño y colores (ajústalos a tu gusto) */
+            background-color: #333333; /* Fondo oscuro elegante */
+            color: #ffffff;            /* Texto blanco */
+            padding: 12px 24px;        /* Tamaño del botón */
+            font-size: 16px;           /* Tamaño del texto */
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;        /* Bordes suavemente redondeados */
+            cursor: pointer;           /* Cambia el cursor a una mano al pasar por encima */
+            
+            /* Sombra para darle profundidad */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            
+            /* Transición suave para los efectos */
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            text-decoration: none!important;
+            display: inline-flex;  
+            align-items: center;
+
+        }
+
+        /* Efecto visual cuando el usuario pasa el mouse por encima */
+        .boton--regresar:hover {
+            background-color: #222222; /* Se vuelve un poco más oscuro */
+            transform: translateY(-2px); /* Sube ligeramente */
+        }
+        a.boton--regresar:visited, a.boton--regresar:active {
+            color: #ffffff !important;
+            text-decoration: none !important;
+            border-bottom: none !important;
+        }
+
+
+
+
+    </style>
+
+    <!-- MOTOR 3D INTEGRADO CON SOPORTE DE COLOR -->
+    <script>
+        window.THREE = window.THREE || {};
+        THREE.Color = class {
+            constructor(r, g, b) {
+                this.r = 1; this.g = 1; this.b = 1;
+                if (g === undefined && b === undefined) this.setHex(r);
+                else { this.r = r; this.g = g; this.b = b; }
+            }
+            setHex(h) {
+                h = Math.floor(h);
+                this.r = ((h >> 16) & 255) / 255;
+                this.g = ((h >> 8) & 255) / 255;
+                this.b = (h & 255) / 255;
+                return this;
+            }
+        };
+        THREE.Vector3 = class {
+            constructor(x = 0, y = 0, z = 0) { this.x = x; this.y = y; this.z = z; }
+            set(x, y, z) { this.x = x; this.y = y; this.z = z; return this; }
+            length() { return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z); }
+        };
+        THREE.Scene = class {
+            constructor() { this.children = []; this.type = "Scene"; }
+            add(o) { this.children.push(o); }
+        };
+        THREE.PerspectiveCamera = class {
+            constructor(fov) {
+                this.fov = fov || 60;
+                this.position = new THREE.Vector3();
+            }
+            updateProjectionMatrix() {}
+        };
+        THREE.BufferAttribute = class {
+            constructor(array, itemSize) { this.array = array; this.itemSize = itemSize; }
+        };
+        THREE.BufferGeometry = class {
+            constructor() { this.attributes = {}; }
+            setAttribute(name, attribute) { this.attributes[name] = attribute; return this; }
+        };
+        THREE.PointsMaterial = class {
+            constructor(p) { this.size = p.size || 1; }
+        };
+        THREE.Points = class {
+            constructor(g, m) {
+                this.geometry = g; this.material = m;
+                this.rotation = new THREE.Vector3(); this.type = "Points";
+            }
+        };
+        THREE.SphereGeometry = class { constructor(r) { this.radius = r; } };
+        THREE.MeshBasicMaterial = class { constructor(p) { this.color = new THREE.Color(p.color || 0xffffff); } };
+        THREE.Mesh = class {
+            constructor(g, m) { this.geometry = g; this.material = m; this.position = new THREE.Vector3(); this.type = "Mesh"; }
+        };
+        THREE.PointLight = class { constructor(c) { this.type = "PointLight"; } };
+        THREE.AmbientLight = class { constructor(c) { this.type = "AmbientLight"; } };
+
+        class Local3DRenderer {
+            constructor() {
+                this.domElement = document.createElement('canvas');
+                this.ctx = this.domElement.getContext('2d');
+                this.ratio = 1;
+            }
+            setSize(w, h) {
+                this.domElement.width = w * this.ratio;
+                this.domElement.height = h * this.ratio;
+                this.domElement.style.width = w + 'px';
+                this.domElement.style.height = h + 'px';
+            }
+            setPixelRatio(r) { this.ratio = r; }
+            render(scene, camera) {
+                const w = this.domElement.width;
+                const h = this.domElement.height;
+                const ctx = this.ctx;
+                
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(0, 0, w, h);
+                
+                const camDist = camera.position.length() || 60;
+                const timeRot = (Date.now() * 0.0002);
+
+                // Renderizado de las Estrellas con Color Dinámico
+                const points = scene.children.find(c => c.type === "Points");
+                if (points && points.geometry.attributes.position) {
+                    const arr = points.geometry.attributes.position.array;
+                    const colArr = points.geometry.attributes.color ? points.geometry.attributes.color.array : null;
+                    
+                    const totalRot = timeRot + points.rotation.y;
+                    const cos = Math.cos(totalRot);
+                    const sin = Math.sin(totalRot);
+
+                    for (let i = 0; i < arr.length; i += 3) {
+                        let lx = arr[i];
+                        let ly = arr[i + 1];
+                        let lz = arr[i + 2];
+
+                        let rx = lx * cos - lz * sin;
+                        let rz = lx * sin + lz * cos;
+
+                        let zPerspective = camDist - rz;
+                        if (zPerspective > 1) {
+                            let factor = 450 * (camera.fov / 60);
+                            let sx = (rx * factor) / zPerspective + (w / 2);
+                            let sy = (ly * factor) / zPerspective + (h / 2);
+
+                            if (sx >= 0 && sx <= w && sy >= 0 && sy <= h) {
+                                let size = (points.material.size * 20) / zPerspective;
+                                
+                                if (colArr) {
+                                    const r = Math.floor(colArr[i] * 255);
+                                    const g = Math.floor(colArr[i + 1] * 255);
+                                    const b = Math.floor(colArr[i + 2] * 255);
+                                    ctx.fillStyle = `rgb(${r},${g},${b})`;
+                                } else {
+                                    ctx.fillStyle = '#ffffff';
+                                }
+
+                                ctx.fillRect(sx, sy, Math.max(1, size), Math.max(1, size));
+                            }
+                        }
+                    }
+                }
+
+                // Renderizado del Núcleo Brillante central
+                // Renderizado del Núcleo Brillante central
+                // Renderizado del Núcleo Brillante central con degradado radial
+const mesh = scene.children.find(c => c.type === "Mesh");
+if (mesh) {
+    const centerX = w / 2;
+    const centerY = h / 2;
+    const radius = Math.max(6, 280 / camDist); // Tamaño del núcleo basado en la distancia
+
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+
+    // 🎨 CREAMOS EL DEGRADADO RADIAL:
+    // Nace en el centro (0) y termina en el borde exterior del radio (radius)
+                    const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+                    gradient.addColorStop(0, '#ffffff');       // Corazón de la estrella: Blanco puro
+                    gradient.addColorStop(0.3, '#ffffff');     // Mantiene el blanco un poco más hacia afuera
+                    gradient.addColorStop(0.7, '#ff66cc');     // Transición a un rosado suave/pastel
+                    gradient.addColorStop(1, 'rgba(255, 0, 255, 0)'); // El borde exterior se desvanece por completo
+
+                    ctx.fillStyle = gradient;
+
+                    // ✨ EFECTO DE AURA NEBULAR (Glow):
+                    ctx.shadowBlur = 35;                        // Subimos el desenfoque para un brillo más etéreo
+                    ctx.shadowColor = '#ff33aa';                // Color del aura: Rosado fucsia neón
+                    
+                    ctx.fill();
+                    ctx.shadowBlur = 0;                         // Reseteamos el brillo para que no afecte a otros objetos
+                }
+
+            }
+        }
+        THREE.WebGLRenderer = Local3DRenderer;
+
+                THREE.OrbitControls = class {
+            constructor(camera, element) {
+                this.camera = camera;
+                this.autoRotate = true;
+                this.autoRotateSpeed = 0.5;
+                
+                let dragging = false;
+                let lastPos = { x: 0, y: 0 };
+                // Vista aérea inicial ideal: Cerca (30) e inclinada (PI / 4)
+                let r = 30, theta = 0, phi = Math.PI / 4; 
+
+                const apply = () => {
+                    this.camera.position.x = r * Math.sin(phi) * Math.sin(theta);
+                    this.camera.position.y = r * Math.cos(phi);
+                    this.camera.position.z = r * Math.sin(phi) * Math.cos(theta);
+                };
+                apply();
+
+                // 🚀 ESCUCHA GLOBAL: Cambiamos 'element' por 'window' para que capte el click en toda la pantalla
+                window.addEventListener('mousedown', (e) => { 
+                    dragging = true; 
+                    lastPos = { x: e.clientX, y: e.clientY }; // Usamos clientX/Y que es más estable que el offset
+                });
+
+                window.addEventListener('mousemove', (e) => {
+                    if (dragging) {
+                        // El cálculo matemático ahora es global y súper fluido
+                        theta += (e.clientX - lastPos.x) * 0.007;
+                        phi = Math.max(0.1, Math.min(Math.PI - 0.1, phi + (e.clientY - lastPos.y) * 0.007));
+                        apply();
+                    }
+                    lastPos = { x: e.clientX, y: e.clientY };
+                });
+
+                window.addEventListener('mouseup', () => { 
+                    dragging = false; 
+                });
+                
+                // El zoom por rueda del mouse también lo volvemos global
+                window.addEventListener('wheel', (e) => {
+                    r = Math.max(12, Math.min(180, r + e.deltaY * 0.03)); 
+                    apply();
+                });
+                
+                this.update = () => {
+                    if (this.autoRotate && !dragging) {
+                        theta += 0.002 * this.autoRotateSpeed;
+                        apply();
+                    }
+                };
+            }
+        };
+
+
+    </script>
+</head>
+<body>
+    <div id="info">Arrastra el mouse para girar la vista | Rueda para hacer zoom</div>
+    <a href="/main/main.html" class="boton--regresar" id="back--btn">Volver</a>
+    <!-- INICIALIZACIÓN DE LA ESCENA DINÁMICA -->
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        document.body.appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.5;
+
+        const coreLight = new THREE.PointLight(0xffaa55, 3, 300);
+        scene.add(coreLight);
+        const ambientLight = new THREE.AmbientLight(0x222244);
+        scene.add(ambientLight);
+
+        // Busca estas líneas arriba en tu script y déjalas así:
+        const coreGeometry = new THREE.SphereGeometry(2);
+        const coreMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff }); // 👈 Cambiado a Blanco Brillante
+        const coreMesh = new THREE.Mesh(coreGeometry, coreMaterial);
+        scene.add(coreMesh);
+
+
+        // --- GENERACIÓN EN ESPIRAL CON COLORES GRADIENTES ---
+        const starCount = 8000; // Subimos a 4,000 para que se vea aún más llena
+        const starGeometry = new THREE.BufferGeometry();
+
+        // --- GENERACIÓN EN ESPIRAL CON COLORES NEÓN VIVOS (SIN AMARILLO) ---
+const starPositions = new Float32Array(starCount * 3);
+const starColors = new Float32Array(starCount * 3);
+
+const brazos = 3;
+const dispersion = 15;
+const radioMaximo = 180;
+
+for (let i = 0; i < starCount; i++) {
+    const idx = i * 3;
+    const radio = Math.pow(Math.random(), 3) * radioMaximo;
+    const anguloBrazo = ((i % brazos) / brazos) * Math.PI * 2;
+    const anguloEspiral = radio * 0.04;
+    
+    const caosX = (Math.random() - 0.5) * dispersion * (radioMaximo / (radio + 10));
+    const caosY = (Math.random() - 0.5) * dispersion * 0.3;
+    const caosZ = (Math.random() - 0.5) * dispersion * (radioMaximo / (radio + 10));
+
+    starPositions[idx] = Math.cos(anguloBrazo + anguloEspiral) * radio + caosX;
+    starPositions[idx + 1] = caosY;
+    starPositions[idx + 2] = Math.sin(anguloBrazo + anguloEspiral) * radio + caosZ;
+
+    const porcentajeRadio = radio / radioMaximo;
+
+    // 🎨 PALETA DE COLORES SIN AMARILLO (Rosado, Morado y Celeste)
+    if (porcentajeRadio < 0.35) {
+        // Nace desde el mismo centro: Rosado Chicle / Fucsia Eléctrico
+        starColors[idx] = 1.0;                      // R
+        starColors[idx + 1] = 0.25;                 // G
+        starColors[idx + 2] = 0.70;                 // B
+    } else if (porcentajeRadio < 0.75) {
+        // Cuerpo principal de los brazos: Morado Neón / Violeta Cósmico
+        starColors[idx] = 0.60;                     // R
+        starColors[idx + 1] = 0.05;                 // G
+        starColors[idx + 2] = 1.0;                  // B
+    } else {
+        // Bordes y puntas de la galaxia: Celeste Pastel / Cyan Brillante
+        starColors[idx] = 0.20;                     // R
+        starColors[idx + 1] = 0.85;                 // G
+        starColors[idx + 2] = 1.0;                  // B
+    }
+}
+
+starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+starGeometry.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
+
+const starMaterial = new THREE.PointsMaterial({ size: 0.85 });
+const starField = new THREE.Points(starGeometry, starMaterial);
+scene.add(starField);
+
+window.addEventListener('resize', () => {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+function animate() {
+    requestAnimationFrame(animate);
+    controls.update(); // 👈 Esto procesa la rotación automática suave
+    
+    // Rotación orbital pasiva de las estrellas
+    starField.rotation.y += 0.0002; 
+    
+    renderer.render(scene, camera);
+}
+
+
+
+animate();
+
+</script>

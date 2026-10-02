@@ -1,0 +1,293 @@
+@font-face {
+    font-family: 'FnafRetro';
+    /* Apuntamos a la carpeta y al nombre exacto de tu archivo descargado */
+    src: url('../fuentes/fnaf.ttf') format('truetype'); 
+    font-weight: normal;
+    font-style: normal;
+}
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+@import url('https://googleapis.com');
+
+body{
+    font-family: 'FnafRetro' , monospace;
+    background-color: #0A0A0A;
+    color: #D4D4D4;
+}
+/* -----------------------------------------------Backgrounds */
+.login--background{
+    margin: 0;
+    height: 100vh; /* Ocupa exactamente el 100% de la ventana visual */
+    background-image: url(images/Designer.png);
+    background-size: 100% 100%;    /* Fuerza a la imagen a estirarse exactamente al ancho y alto de la pantalla */    
+    /* Centra el formulario vertical y horizontalmente */
+    display: flex;
+    justify-content: center;
+}
+.main--background{
+    margin: 0;
+    height: 100vh; /* Ocupa exactamente el 100% de la ventana visual */
+    background-image: url(images/FNaF3_Office.webp);
+    background-size: 100% 100%;    /* Fuerza a la imagen a estirarse exactamente al ancho y alto de la pantalla */    
+    /* Centra el formulario vertical y horizontalmente */
+    display: flex;
+    justify-content: center;
+}
+.input--login::placeholder, .btn--login::placeholder, .input--login{
+    font-family: 'FnafRetro';
+}
+.btn--login {
+    font-family: 'FnafRetro', sans-serif !important; /* 👈 El nombre exacto que le diste en el @font-face */
+    font-size: 1.2rem;                    /* Ajusta el tamaño de la letra del botón */
+    text-transform: uppercase;            /* Hace que el texto del botón salga en mayúsculas */
+    letter-spacing: 2px;                  /* Separa los caracteres para un look más retro */
+    image-rendering: pixelated;           /* Mantiene los píxeles afilados */
+}
+h1{
+    font-size: 40px;
+    padding: 40px 0 10px 0;
+}
+.login{
+    background-color: #0a0a0aee;
+    border-radius: 36px;
+    width: 55%;
+    max-width: 500px;
+    height: 85vh;
+    max-height: 550px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 60px 0;
+}
+.sign{
+    margin-top: 80px;
+}
+
+/* 1. CONTENEDOR DEL GRUPO (Controla el ancho en la pantalla) */
+.input-group {
+    display: flex;
+    flex-direction: column;   /* Pone el label ARRIBA del input */
+    align-items: flex-start;  /* Alinea el texto del label a la izquierda */
+    width: 70%;
+    max-width: 400px;
+    margin: 8px 0;            /* Espacio vertical entre los bloques */
+}
+
+/* Margen superior solo para el primer bloque (Correo) */
+.input-group:first-of-type {
+    margin-top: 40px; 
+}
+
+/* 2. ESTILOS PARA EL TEXTO DEL LABEL */
+.input-group label {
+    font-size: 14px;
+    margin-bottom: 6px;       /* Espacio entre el label y su input */
+    color: #D4D4D4;
+    font-weight: bold;
+}
+
+/* 3. ESTILOS PARA LAS CAJAS DE TEXTO (INPUTS) */
+.input--login {
+    padding: 16px 12px;
+    width: 100%;             /* Ahora ocupa todo el ancho de su grupo */
+    border-radius: 7px;
+    border: none;
+    outline: none;
+    margin: 0;               /* Limpiamos márgenes viejos */
+}
+
+/* 4. CONTENEDOR DE OPCIONES (Remember me / Forgot password) */
+.options--login{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;     /* Alinea verticalmente los textos */
+    padding: 8px 4px;
+    width: 70%;                     
+    max-width: 400px;               
+}
+
+/* Espacio arriba del bloque "Don't have an account" */
+.options--login:last-of-type{
+    margin-top: 15px; 
+}
+
+.options--login a {
+    color: #8b5cf6;          /* Morado claro para buen contraste */
+    text-decoration: none;
+}
+.options--login a:hover {
+    text-decoration: underline;
+}
+
+/* Contenedor interno del Checkbox */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 6px; 
+}
+
+/* 5. ESTILOS PARA EL BOTÓN */
+.btn--login {
+    padding: 16px 4px;
+    margin-top: 50px;        
+    width: 70%;
+    max-width: 400px;
+    border-radius: 7px;
+    border: none;
+    background-color: #E1E8F0;
+    color: #1a1a1a;
+    font-family: monospace;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.input-password-container {
+    position: relative;
+    width: 100%; 
+}
+.input-password-container input {
+    width: 100%;
+    padding-right: 40px;
+}
+button#btn-ver {
+    position: absolute;
+    right: 12px;         /* Separación desde el borde derecho */
+    top: 50%;            /* Lo centra verticalmente */
+    transform: translateY(-50%); /* Ajuste perfecto de centrado */
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    font-size: 1.2rem;
+}
+.btn--login:hover {
+    background-color: #cbd5e1; 
+}
+
+/*<-------------------------- Main -------------------------->*/
+
+
+/* Contenedor principal corregido y centrado en toda la pantalla */
+.contenedor-botones {
+    display: flex;
+    gap: 20px;            /* Espacio entre los botones */
+    justify-content: center; /* Centra los botones horizontalmente */
+    align-items: center;     /* Centra los botones verticalmente */
+    flex-wrap: wrap;         /* Si la pantalla es chica, se acomodan abajo */
+    padding: 40px;
+    
+    /* ESTO HACE QUE SE VEA EN EL CENTRO EXACTO DE LA PANTALLA */
+    min-height: 80vh;        /* Toma el 80% de la altura total de la ventana */
+    width: 100%;             /* Asegura que ocupe todo el ancho */
+    box-sizing: border-box;
+}
+
+/* El enlace que se comportará como un botón enorme */
+.boton-imagen {
+    display: block;
+    position: relative;
+    width: 220px;         
+    height: 300px;        
+    border-radius: 15px;  
+    overflow: hidden;     
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    
+    /* ESTO QUITA LAS LETRAS MORADAS SI LA IMAGEN NO CARGA */
+    text-decoration: none; 
+    color: transparent;   
+    background-color: #222222; /* Un fondo gris oscuro mientras pones tus imágenes */
+}
+/* El efecto hover que te hace falta para las tarjetas */
+.boton-imagen:hover {
+    transform: scale(1.05); /* Hace que la tarjeta se agrande un 5% */
+    box-shadow: 0 8px 25px rgba(0,0,0,0.35); /* Hace la sombra más grande y oscura */
+    cursor: pointer;
+}
+
+
+
+/*<-------------------------- Boton atras -------------------------->*/
+.boton--regresar {
+    /* Posicionamiento fijo abajo a la derecha */
+    position: fixed;
+    bottom: 20px;       /* Distancia desde el borde inferior */
+    right: 20px;        /* Distancia desde el borde derecho */
+    z-index: 9999;      /* Asegura que esté por encima de las imágenes u otros elementos */
+
+    /* Diseño y colores (ajústalos a tu gusto) */
+    background-color: #333333; /* Fondo oscuro elegante */
+    color: #ffffff;            /* Texto blanco */
+    padding: 12px 24px;        /* Tamaño del botón */
+    font-size: 16px;           /* Tamaño del texto */
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;        /* Bordes suavemente redondeados */
+    cursor: pointer;           /* Cambia el cursor a una mano al pasar por encima */
+    
+    /* Sombra para darle profundidad */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    
+    /* Transición suave para los efectos */
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    text-decoration: none!important;
+    display: inline-flex;  
+    align-items: center;
+
+}
+
+/* Efecto visual cuando el usuario pasa el mouse por encima */
+.boton--regresar:hover {
+    background-color: #222222; /* Se vuelve un poco más oscuro */
+    transform: translateY(-2px); /* Sube ligeramente */
+}
+a.boton--regresar:visited, a.boton--regresar:active {
+    color: #ffffff !important;
+    text-decoration: none !important;
+    border-bottom: none !important;
+}
+/*<-------------------------- Texto de Minecraft Amarillo -------------------------->*/
+.contenedor-titulo {
+    position: relative;
+    display: inline-block;
+    margin: 20px auto; /* Centra el bloque del título */
+}
+
+/* El texto amarillo estilo Minecraft */
+.minecraft-splash {
+    font-size: 14px; 
+    color: #FFFF00;
+    text-shadow: 2px 2px 0px #3F3F00;
+    
+    /* === VALORES CORREGIDOS PARA LA ESQUINA SUPERIOR === */
+    position: absolute;
+    right: -80px;  /* Lo mueve a la derecha, fuera de la palabra "In" */
+    top: 75px;     /* El valor negativo lo sube por encima de la línea del título */
+    /* =================================================== */
+    
+    transform-origin: center;
+    animation: minecraftPulse 0.5s ease-in-out infinite alternate;
+    user-select: none;
+    white-space: nowrap; 
+}
+
+
+
+/* Animación corregida manteniendo la inclinación fija */
+@keyframes minecraftPulse {
+    0% {
+        transform: rotate(-15deg) scale(1);
+    }
+    100% {
+        transform: rotate(-15deg) scale(1.2); /* Crece un 15% */
+    }
+}
+
+

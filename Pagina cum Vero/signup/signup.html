@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create an account</title>
+    <!-- Asegúrate de usar la ruta correcta a tu archivo CSS global -->
+    <link rel="stylesheet" href="/index.css">
+    <script type="module" src="signup.js" defer></script>
+</head>
+<body>
+
+    <!-- Contenedor del fondo negro de pantalla completa -->
+    <div class="login--background">
+        
+        <!-- Esta caja ".login" aplicará el centrado y el fondo del formulario -->
+        <form class="login" id="signup-form">
+            
+            <div class="contenedor-titulo">
+                <h1>Create an account</h1>
+            </div>
+
+            <!-- Grupo: Correo -->
+            <div class="input-group">
+                <label for="correo">Correo Electrónico</label>
+                <input class="input--login" type="email" id="correo" placeholder="Ingresa tu correo" required>
+            </div>
+
+            <!-- Grupo: Nombre Completo -->
+            <div class="input-group">
+                <label for="nombre">Nombre Completo</label>
+                <input class="input--login" type="text" id="nombre" placeholder="Ingresa tu nombre completo" required>
+            </div>
+
+            <!-- Grupo: Contraseña -->
+            <div class="input-group">
+                <label for="password">Contraseña</label>
+                <input class="input--login" type="password" id="password" placeholder="Ingresa tu contraseña" required>
+            </div>
+            
+            <!-- Botón con la clase exacta del login -->
+            <button type="submit" class="btn--login">CREATE AN ACCOUNT</button>
+            
+            <!-- Texto inferior centrado con las opciones -->
+            <div class="options--login">
+                <p>Already have an account?</p>
+                <a href="../index.html">Log in</a>
+            </div>
+
+        </form>
+    </div>
+
+</body>
+</html>
