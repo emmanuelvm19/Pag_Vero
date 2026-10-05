@@ -1,402 +1,246 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espacio 3D - Galaxia Interactiva</title>
-    <style>
-        /* 1. Limpiamos la pantalla por completo */
-        body {
-            margin: 0;
-            overflow: hidden;
-            background-color: #000;
-            font-family: sans-serif;
-            width: 100vw;
-            height: 100vh;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Galaxia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Nunito:wght@600&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #0b0620; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 2.4s ease; cursor: grab; touch-action: none; }
+  canvas.listo { opacity: 1; }
+  canvas.arrastrando { cursor: grabbing; }
 
-        /* 2. FORZAMOS AL CANVAS A CAPTURAR LOS CLICKS */
-        canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100% !important;
-            height: 100% !important;
-            z-index: 1; /* Se queda en la capa base */
-            display: block;
-        }
+  #mensaje {
+    position: fixed; left: 0; right: 0; bottom: 9vh; text-align: center; pointer-events: none;
+    font: 600 clamp(32px, 6vw, 60px) "Dancing Script", cursive; color: #fff0fa;
+    text-shadow: 0 0 12px #ff8fd8, 0 0 34px #c58cff;
+    opacity: 0; transition: opacity 2.5s ease 1.6s;
+  }
+  #info {
+    position: fixed; top: 18px; left: 0; right: 0; text-align: center; pointer-events: none;
+    font: 600 14px "Nunito", sans-serif; color: rgba(255, 235, 250, .75); letter-spacing: .03em;
+    opacity: 0; transition: opacity 1.5s ease 1s;
+  }
+  body.listo #mensaje, body.listo #info { opacity: 1; }
+  body.sin-ayuda #info { opacity: 0; transition-delay: 0s; }
 
-        /* 3. EL TEXTO DE ARRIBA YA NO BLOQUEARÁ NADA */
-        #info {
-            position: absolute;
-            top: 15px;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
-            letter-spacing: 1px;
-            
-            /* 🚀 ESTAS DOS LÍNEAS HACEN QUE EL CLICK DETECTE EL CANVAS DE ABAJO */
-            pointer-events: none !important; 
-            z-index: 10; 
-        }
-        .boton--regresar {
-            /* Posicionamiento fijo abajo a la derecha */
-            position: fixed;
-            bottom: 20px;       /* Distancia desde el borde inferior */
-            right: 20px;        /* Distancia desde el borde derecho */
-            z-index: 9999;      /* Asegura que esté por encima de las imágenes u otros elementos */
-
-            /* Diseño y colores (ajústalos a tu gusto) */
-            background-color: #333333; /* Fondo oscuro elegante */
-            color: #ffffff;            /* Texto blanco */
-            padding: 12px 24px;        /* Tamaño del botón */
-            font-size: 16px;           /* Tamaño del texto */
-            font-weight: bold;
-            border: none;
-            border-radius: 8px;        /* Bordes suavemente redondeados */
-            cursor: pointer;           /* Cambia el cursor a una mano al pasar por encima */
-            
-            /* Sombra para darle profundidad */
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            
-            /* Transición suave para los efectos */
-            transition: transform 0.2s ease, background-color 0.2s ease;
-            text-decoration: none!important;
-            display: inline-flex;  
-            align-items: center;
-
-        }
-
-        /* Efecto visual cuando el usuario pasa el mouse por encima */
-        .boton--regresar:hover {
-            background-color: #222222; /* Se vuelve un poco más oscuro */
-            transform: translateY(-2px); /* Sube ligeramente */
-        }
-        a.boton--regresar:visited, a.boton--regresar:active {
-            color: #ffffff !important;
-            text-decoration: none !important;
-            border-bottom: none !important;
-        }
-
-
-
-
-    </style>
-
-    <!-- MOTOR 3D INTEGRADO CON SOPORTE DE COLOR -->
-    <script>
-        window.THREE = window.THREE || {};
-        THREE.Color = class {
-            constructor(r, g, b) {
-                this.r = 1; this.g = 1; this.b = 1;
-                if (g === undefined && b === undefined) this.setHex(r);
-                else { this.r = r; this.g = g; this.b = b; }
-            }
-            setHex(h) {
-                h = Math.floor(h);
-                this.r = ((h >> 16) & 255) / 255;
-                this.g = ((h >> 8) & 255) / 255;
-                this.b = (h & 255) / 255;
-                return this;
-            }
-        };
-        THREE.Vector3 = class {
-            constructor(x = 0, y = 0, z = 0) { this.x = x; this.y = y; this.z = z; }
-            set(x, y, z) { this.x = x; this.y = y; this.z = z; return this; }
-            length() { return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z); }
-        };
-        THREE.Scene = class {
-            constructor() { this.children = []; this.type = "Scene"; }
-            add(o) { this.children.push(o); }
-        };
-        THREE.PerspectiveCamera = class {
-            constructor(fov) {
-                this.fov = fov || 60;
-                this.position = new THREE.Vector3();
-            }
-            updateProjectionMatrix() {}
-        };
-        THREE.BufferAttribute = class {
-            constructor(array, itemSize) { this.array = array; this.itemSize = itemSize; }
-        };
-        THREE.BufferGeometry = class {
-            constructor() { this.attributes = {}; }
-            setAttribute(name, attribute) { this.attributes[name] = attribute; return this; }
-        };
-        THREE.PointsMaterial = class {
-            constructor(p) { this.size = p.size || 1; }
-        };
-        THREE.Points = class {
-            constructor(g, m) {
-                this.geometry = g; this.material = m;
-                this.rotation = new THREE.Vector3(); this.type = "Points";
-            }
-        };
-        THREE.SphereGeometry = class { constructor(r) { this.radius = r; } };
-        THREE.MeshBasicMaterial = class { constructor(p) { this.color = new THREE.Color(p.color || 0xffffff); } };
-        THREE.Mesh = class {
-            constructor(g, m) { this.geometry = g; this.material = m; this.position = new THREE.Vector3(); this.type = "Mesh"; }
-        };
-        THREE.PointLight = class { constructor(c) { this.type = "PointLight"; } };
-        THREE.AmbientLight = class { constructor(c) { this.type = "AmbientLight"; } };
-
-        class Local3DRenderer {
-            constructor() {
-                this.domElement = document.createElement('canvas');
-                this.ctx = this.domElement.getContext('2d');
-                this.ratio = 1;
-            }
-            setSize(w, h) {
-                this.domElement.width = w * this.ratio;
-                this.domElement.height = h * this.ratio;
-                this.domElement.style.width = w + 'px';
-                this.domElement.style.height = h + 'px';
-            }
-            setPixelRatio(r) { this.ratio = r; }
-            render(scene, camera) {
-                const w = this.domElement.width;
-                const h = this.domElement.height;
-                const ctx = this.ctx;
-                
-                ctx.fillStyle = '#000000';
-                ctx.fillRect(0, 0, w, h);
-                
-                const camDist = camera.position.length() || 60;
-                const timeRot = (Date.now() * 0.0002);
-
-                // Renderizado de las Estrellas con Color Dinámico
-                const points = scene.children.find(c => c.type === "Points");
-                if (points && points.geometry.attributes.position) {
-                    const arr = points.geometry.attributes.position.array;
-                    const colArr = points.geometry.attributes.color ? points.geometry.attributes.color.array : null;
-                    
-                    const totalRot = timeRot + points.rotation.y;
-                    const cos = Math.cos(totalRot);
-                    const sin = Math.sin(totalRot);
-
-                    for (let i = 0; i < arr.length; i += 3) {
-                        let lx = arr[i];
-                        let ly = arr[i + 1];
-                        let lz = arr[i + 2];
-
-                        let rx = lx * cos - lz * sin;
-                        let rz = lx * sin + lz * cos;
-
-                        let zPerspective = camDist - rz;
-                        if (zPerspective > 1) {
-                            let factor = 450 * (camera.fov / 60);
-                            let sx = (rx * factor) / zPerspective + (w / 2);
-                            let sy = (ly * factor) / zPerspective + (h / 2);
-
-                            if (sx >= 0 && sx <= w && sy >= 0 && sy <= h) {
-                                let size = (points.material.size * 20) / zPerspective;
-                                
-                                if (colArr) {
-                                    const r = Math.floor(colArr[i] * 255);
-                                    const g = Math.floor(colArr[i + 1] * 255);
-                                    const b = Math.floor(colArr[i + 2] * 255);
-                                    ctx.fillStyle = `rgb(${r},${g},${b})`;
-                                } else {
-                                    ctx.fillStyle = '#ffffff';
-                                }
-
-                                ctx.fillRect(sx, sy, Math.max(1, size), Math.max(1, size));
-                            }
-                        }
-                    }
-                }
-
-                // Renderizado del Núcleo Brillante central
-                // Renderizado del Núcleo Brillante central
-                // Renderizado del Núcleo Brillante central con degradado radial
-const mesh = scene.children.find(c => c.type === "Mesh");
-if (mesh) {
-    const centerX = w / 2;
-    const centerY = h / 2;
-    const radius = Math.max(6, 280 / camDist); // Tamaño del núcleo basado en la distancia
-
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-
-    // 🎨 CREAMOS EL DEGRADADO RADIAL:
-    // Nace en el centro (0) y termina en el borde exterior del radio (radius)
-                    const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
-                    gradient.addColorStop(0, '#ffffff');       // Corazón de la estrella: Blanco puro
-                    gradient.addColorStop(0.3, '#ffffff');     // Mantiene el blanco un poco más hacia afuera
-                    gradient.addColorStop(0.7, '#ff66cc');     // Transición a un rosado suave/pastel
-                    gradient.addColorStop(1, 'rgba(255, 0, 255, 0)'); // El borde exterior se desvanece por completo
-
-                    ctx.fillStyle = gradient;
-
-                    // ✨ EFECTO DE AURA NEBULAR (Glow):
-                    ctx.shadowBlur = 35;                        // Subimos el desenfoque para un brillo más etéreo
-                    ctx.shadowColor = '#ff33aa';                // Color del aura: Rosado fucsia neón
-                    
-                    ctx.fill();
-                    ctx.shadowBlur = 0;                         // Reseteamos el brillo para que no afecte a otros objetos
-                }
-
-            }
-        }
-        THREE.WebGLRenderer = Local3DRenderer;
-
-                THREE.OrbitControls = class {
-            constructor(camera, element) {
-                this.camera = camera;
-                this.autoRotate = true;
-                this.autoRotateSpeed = 0.5;
-                
-                let dragging = false;
-                let lastPos = { x: 0, y: 0 };
-                // Vista aérea inicial ideal: Cerca (30) e inclinada (PI / 4)
-                let r = 30, theta = 0, phi = Math.PI / 4; 
-
-                const apply = () => {
-                    this.camera.position.x = r * Math.sin(phi) * Math.sin(theta);
-                    this.camera.position.y = r * Math.cos(phi);
-                    this.camera.position.z = r * Math.sin(phi) * Math.cos(theta);
-                };
-                apply();
-
-                // 🚀 ESCUCHA GLOBAL: Cambiamos 'element' por 'window' para que capte el click en toda la pantalla
-                window.addEventListener('mousedown', (e) => { 
-                    dragging = true; 
-                    lastPos = { x: e.clientX, y: e.clientY }; // Usamos clientX/Y que es más estable que el offset
-                });
-
-                window.addEventListener('mousemove', (e) => {
-                    if (dragging) {
-                        // El cálculo matemático ahora es global y súper fluido
-                        theta += (e.clientX - lastPos.x) * 0.007;
-                        phi = Math.max(0.1, Math.min(Math.PI - 0.1, phi + (e.clientY - lastPos.y) * 0.007));
-                        apply();
-                    }
-                    lastPos = { x: e.clientX, y: e.clientY };
-                });
-
-                window.addEventListener('mouseup', () => { 
-                    dragging = false; 
-                });
-                
-                // El zoom por rueda del mouse también lo volvemos global
-                window.addEventListener('wheel', (e) => {
-                    r = Math.max(12, Math.min(180, r + e.deltaY * 0.03)); 
-                    apply();
-                });
-                
-                this.update = () => {
-                    if (this.autoRotate && !dragging) {
-                        theta += 0.002 * this.autoRotateSpeed;
-                        apply();
-                    }
-                };
-            }
-        };
-
-
-    </script>
+  .boton--regresar {
+    position: fixed; right: 20px; bottom: 20px; z-index: 10;
+    display: inline-flex; align-items: center; padding: 11px 24px;
+    font: 600 16px "Nunito", sans-serif; color: #fff !important; text-decoration: none !important;
+    background: rgba(255, 255, 255, .14); border: 1px solid rgba(255, 255, 255, .35); border-radius: 999px;
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    box-shadow: 0 0 18px rgba(255, 140, 220, .35);
+    transition: transform .2s ease, background-color .2s ease, box-shadow .2s ease;
+  }
+  .boton--regresar:hover { background: rgba(255, 255, 255, .26); transform: translateY(-2px); box-shadow: 0 0 26px rgba(255, 140, 220, .6); }
+  .boton--regresar:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+  a.boton--regresar:visited, a.boton--regresar:active { color: #fff !important; text-decoration: none !important; }
+  @media (prefers-reduced-motion: reduce) { canvas, #mensaje, #info { transition: none; } }
+</style>
 </head>
 <body>
-    <div id="info">Arrastra el mouse para girar la vista | Rueda para hacer zoom</div>
-    <a href="/main/main.html" class="boton--regresar" id="back--btn">Volver</a>
-    <!-- INICIALIZACIÓN DE LA ESCENA DINÁMICA -->
-    <script>
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-        
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        document.body.appendChild(renderer.domElement);
+<canvas id="c"></canvas>
+<div id="info">Arrastra para girar · Rueda para acercar</div>
+<div id="mensaje"></div>
+<a href="../main/main.html" class="boton--regresar" id="back--btn">Volver</a>
 
-        const controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.autoRotate = true;
-        controls.autoRotateSpeed = 0.5;
+<script>
+// ✏️ Escribe aquí tu mensaje (déjalo vacío "" si no quieres mensaje)
+const MENSAJE = "Pollas gordas ♡";
 
-        const coreLight = new THREE.PointLight(0xffaa55, 3, 300);
-        scene.add(coreLight);
-        const ambientLight = new THREE.AmbientLight(0x222244);
-        scene.add(ambientLight);
+const cv = document.getElementById("c");
+const ctx = cv.getContext("2d");
+const reducir = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let W, H, dpr, neb;
 
-        // Busca estas líneas arriba en tu script y déjalas así:
-        const coreGeometry = new THREE.SphereGeometry(2);
-        const coreMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff }); // 👈 Cambiado a Blanco Brillante
-        const coreMesh = new THREE.Mesh(coreGeometry, coreMaterial);
-        scene.add(coreMesh);
+// ---------- Paleta ----------
+const COLORES = [
+  [255, 150, 215],   // rosa chicle
+  [200, 160, 255],   // lila
+  [150, 225, 255],   // celeste
+  [255, 245, 252]    // blanco perlado
+];
 
-
-        // --- GENERACIÓN EN ESPIRAL CON COLORES GRADIENTES ---
-        const starCount = 8000; // Subimos a 4,000 para que se vea aún más llena
-        const starGeometry = new THREE.BufferGeometry();
-
-        // --- GENERACIÓN EN ESPIRAL CON COLORES NEÓN VIVOS (SIN AMARILLO) ---
-const starPositions = new Float32Array(starCount * 3);
-const starColors = new Float32Array(starCount * 3);
-
-const brazos = 3;
-const dispersion = 15;
-const radioMaximo = 180;
-
-for (let i = 0; i < starCount; i++) {
-    const idx = i * 3;
-    const radio = Math.pow(Math.random(), 3) * radioMaximo;
-    const anguloBrazo = ((i % brazos) / brazos) * Math.PI * 2;
-    const anguloEspiral = radio * 0.04;
-    
-    const caosX = (Math.random() - 0.5) * dispersion * (radioMaximo / (radio + 10));
-    const caosY = (Math.random() - 0.5) * dispersion * 0.3;
-    const caosZ = (Math.random() - 0.5) * dispersion * (radioMaximo / (radio + 10));
-
-    starPositions[idx] = Math.cos(anguloBrazo + anguloEspiral) * radio + caosX;
-    starPositions[idx + 1] = caosY;
-    starPositions[idx + 2] = Math.sin(anguloBrazo + anguloEspiral) * radio + caosZ;
-
-    const porcentajeRadio = radio / radioMaximo;
-
-    // 🎨 PALETA DE COLORES SIN AMARILLO (Rosado, Morado y Celeste)
-    if (porcentajeRadio < 0.35) {
-        // Nace desde el mismo centro: Rosado Chicle / Fucsia Eléctrico
-        starColors[idx] = 1.0;                      // R
-        starColors[idx + 1] = 0.25;                 // G
-        starColors[idx + 2] = 0.70;                 // B
-    } else if (porcentajeRadio < 0.75) {
-        // Cuerpo principal de los brazos: Morado Neón / Violeta Cósmico
-        starColors[idx] = 0.60;                     // R
-        starColors[idx + 1] = 0.05;                 // G
-        starColors[idx + 2] = 1.0;                  // B
-    } else {
-        // Bordes y puntas de la galaxia: Celeste Pastel / Cyan Brillante
-        starColors[idx] = 0.20;                     // R
-        starColors[idx + 1] = 0.85;                 // G
-        starColors[idx + 2] = 1.0;                  // B
-    }
-}
-
-starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-starGeometry.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
-
-const starMaterial = new THREE.PointsMaterial({ size: 0.85 });
-const starField = new THREE.Points(starGeometry, starMaterial);
-scene.add(starField);
-
-window.addEventListener('resize', () => {
-    renderer.setSize(window.innerWidth, window.innerHeight);
+// ---------- Sprites de brillo ----------
+const sprites = COLORES.map(([r, g, b]) => {
+  const s = document.createElement("canvas"); s.width = s.height = 64;
+  const x = s.getContext("2d");
+  const g2 = x.createRadialGradient(32, 32, 0, 32, 32, 32);
+  g2.addColorStop(0, `rgba(255,255,255,1)`);
+  g2.addColorStop(.18, `rgba(${r},${g},${b},.9)`);
+  g2.addColorStop(.5, `rgba(${r},${g},${b},.22)`);
+  g2.addColorStop(1, `rgba(${r},${g},${b},0)`);
+  x.fillStyle = g2; x.fillRect(0, 0, 64, 64);
+  return s;
 });
 
-function animate() {
-    requestAnimationFrame(animate);
-    controls.update(); // 👈 Esto procesa la rotación automática suave
-    
-    // Rotación orbital pasiva de las estrellas
-    starField.rotation.y += 0.0002; 
-    
-    renderer.render(scene, camera);
+// ---------- Estrellas en espiral ----------
+const N = 9000, BRAZOS = 3, RMAX = 180, DISP = 15;
+const px = new Float32Array(N), py = new Float32Array(N), pz = new Float32Array(N);
+const col = new Uint8Array(N), fase = new Float32Array(N), vel = new Float32Array(N), tam = new Float32Array(N);
+
+for (let i = 0; i < N; i++) {
+  const radio = Math.pow(Math.random(), 3) * RMAX;
+  const aBrazo = ((i % BRAZOS) / BRAZOS) * Math.PI * 2;
+  const aEsp = radio * 0.04;
+  const caos = DISP * (RMAX / (radio + 10));
+  px[i] = Math.cos(aBrazo + aEsp) * radio + (Math.random() - .5) * caos;
+  py[i] = (Math.random() - .5) * DISP * 0.3;
+  pz[i] = Math.sin(aBrazo + aEsp) * radio + (Math.random() - .5) * caos;
+
+  const p = radio / RMAX;
+  col[i] = Math.random() < .12 ? 3 : (p < .35 ? 0 : p < .75 ? 1 : 2);
+  fase[i] = Math.random() * 6.283;
+  vel[i] = .6 + Math.random() * 2;
+  tam[i] = Math.random() < .04 ? 2.2 : 0.7 + Math.random() * .6;
 }
 
+// ---------- Fondo nebuloso (se dibuja una sola vez) ----------
+function crearNebulosa() {
+  neb = document.createElement("canvas");
+  neb.width = Math.round(W * 1.2); neb.height = Math.round(H * 1.2);
+  const x = neb.getContext("2d");
+  const f = x.createRadialGradient(neb.width / 2, neb.height / 2, 0, neb.width / 2, neb.height / 2, Math.max(neb.width, neb.height) * .7);
+  f.addColorStop(0, "#2d1457"); f.addColorStop(.55, "#150a38"); f.addColorStop(1, "#080418");
+  x.fillStyle = f; x.fillRect(0, 0, neb.width, neb.height);
+  x.globalCompositeOperation = "screen";
+  const nubes = [[.3,.35,.38,"255,120,200",.22],[.72,.3,.34,"150,120,255",.22],[.6,.72,.4,"110,200,255",.15],
+                 [.2,.75,.3,"200,130,255",.16],[.85,.8,.28,"255,150,210",.14],[.5,.5,.25,"255,140,220",.14]];
+  for (const [nx, ny, nr, c, a] of nubes) {
+    const R = nr * Math.max(neb.width, neb.height) * .6;
+    const g = x.createRadialGradient(nx * neb.width, ny * neb.height, 0, nx * neb.width, ny * neb.height, R);
+    g.addColorStop(0, `rgba(${c},${a})`); g.addColorStop(1, `rgba(${c},0)`);
+    x.fillStyle = g; x.fillRect(0, 0, neb.width, neb.height);
+  }
+}
 
+function ajustar() {
+  dpr = Math.min(devicePixelRatio || 1, 2);
+  W = innerWidth; H = innerHeight;
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  crearNebulosa();
+}
+addEventListener("resize", ajustar);
+ajustar();
 
-animate();
+// ---------- Cámara (arrastre, rueda y touch) ----------
+let theta = 0, phi = Math.PI / 4, r = 30;
+let thetaT = theta, phiT = phi, rT = r;
+let arrastrando = false, lx = 0, ly = 0;
 
+function inicio(x, y) { arrastrando = true; lx = x; ly = y; cv.classList.add("arrastrando"); document.body.classList.add("sin-ayuda"); }
+function mover(x, y) {
+  if (!arrastrando) return;
+  thetaT -= (x - lx) * 0.007;
+  phiT = Math.max(0.1, Math.min(Math.PI - 0.1, phiT - (y - ly) * 0.007));
+  lx = x; ly = y;
+}
+function fin() { arrastrando = false; cv.classList.remove("arrastrando"); }
+
+addEventListener("mousedown", e => { if (e.target === cv) inicio(e.clientX, e.clientY); });
+addEventListener("mousemove", e => mover(e.clientX, e.clientY));
+addEventListener("mouseup", fin);
+cv.addEventListener("touchstart", e => inicio(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+addEventListener("touchmove", e => mover(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+addEventListener("touchend", fin);
+addEventListener("wheel", e => { rT = Math.max(12, Math.min(180, rT + e.deltaY * 0.03)); }, { passive: true });
+
+// ---------- Estrellas fugaces ----------
+const fugaces = [];
+let proxFugaz = 2;
+function nuevaFugaz() {
+  const ang = Math.PI * (0.15 + Math.random() * 0.15);
+  fugaces.push({ x: Math.random() * W * .8, y: Math.random() * H * .4, vx: Math.cos(ang) * 900, vy: Math.sin(ang) * 900, vida: 0, dur: .9 });
+}
+
+// ---------- Mensaje ----------
+document.getElementById("mensaje").textContent = MENSAJE;
+
+// ---------- Render ----------
+let t0 = performance.now(), tPrev = t0;
+function frame(now) {
+  requestAnimationFrame(frame);
+  const dt = Math.min((now - tPrev) / 1000, .05); tPrev = now;
+  const t = (now - t0) / 1000;
+
+  if (!arrastrando && !reducir) thetaT += 0.0009 * dt * 60;
+  theta += (thetaT - theta) * 0.12;
+  phi += (phiT - phi) * 0.12;
+  r += (rT - r) * 0.12;
+
+  // Fondo
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.globalCompositeOperation = "source-over";
+  ctx.globalAlpha = 1;
+  ctx.drawImage(neb, -W * .1 + Math.sin(theta) * W * .03, -H * .1 + (phi - Math.PI / 4) * H * .05, neb.width, neb.height);
+
+  const cosT = Math.cos(theta), sinT = Math.sin(theta);
+  const alpha = Math.PI / 2 - phi, cosA = Math.cos(alpha), sinA = Math.sin(alpha);
+  const rotG = t * 0.0002 * 60 * .5;
+  const cg = Math.cos(rotG), sg = Math.sin(rotG);
+  const factor = 450 * (Math.min(W, H) / 800 > .5 ? Math.max(.7, Math.min(W, H) / 800) : .5);
+  const cx = W / 2, cy = H / 2;
+
+  ctx.globalCompositeOperation = "lighter";
+  let ultimo = -1;
+  for (let i = 0; i < N; i++) {
+    const rx = px[i] * cg - pz[i] * sg, rz = px[i] * sg + pz[i] * cg;
+    const x1 = rx * cosT - rz * sinT, z1 = rx * sinT + rz * cosT;
+    const y2 = py[i] * cosA - z1 * sinA, z2 = py[i] * sinA + z1 * cosA;
+    const prof = r - z2;
+    if (prof < 1) continue;
+    const sx = cx + x1 * factor / prof, sy = cy - y2 * factor / prof;
+    if (sx < -10 || sx > W + 10 || sy < -10 || sy > H + 10) continue;
+
+    const brillo = reducir ? .85 : .55 + .45 * Math.sin(t * vel[i] + fase[i]);
+    const s = Math.max(1, tam[i] * 14 / prof * 1.4);
+    ctx.globalAlpha = brillo;
+    if (s > 2.2) {
+      const g = s * 5;
+      ctx.drawImage(sprites[col[i]], sx - g / 2, sy - g / 2, g, g);
+    } else {
+      if (col[i] !== ultimo) { const c = COLORES[col[i]]; ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`; ultimo = col[i]; }
+      ctx.fillRect(sx - s / 2, sy - s / 2, s, s);
+    }
+  }
+
+  // Núcleo brillante que late
+  const pulso = reducir ? 1 : 1 + .07 * Math.sin(t * 1.6);
+  const rad = Math.max(10, 380 / r) * pulso;
+  ctx.globalAlpha = 1;
+  let g = ctx.createRadialGradient(cx, cy, 0, cx, cy, rad * 6);
+  g.addColorStop(0, "rgba(255,170,230,.45)"); g.addColorStop(.4, "rgba(190,130,255,.14)"); g.addColorStop(1, "rgba(190,130,255,0)");
+  ctx.fillStyle = g; ctx.fillRect(cx - rad * 6, cy - rad * 6, rad * 12, rad * 12);
+  g = ctx.createRadialGradient(cx, cy, 0, cx, cy, rad);
+  g.addColorStop(0, "#ffffff"); g.addColorStop(.35, "#ffffff"); g.addColorStop(.7, "rgba(255,120,210,.9)"); g.addColorStop(1, "rgba(255,0,200,0)");
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, rad, 0, 6.283); ctx.fill();
+
+  // Estrellas fugaces
+  ctx.globalCompositeOperation = "lighter";
+  if (!reducir) {
+    proxFugaz -= dt;
+    if (proxFugaz <= 0) { nuevaFugaz(); proxFugaz = 3 + Math.random() * 4; }
+  }
+  for (let i = fugaces.length - 1; i >= 0; i--) {
+    const f = fugaces[i];
+    f.vida += dt; f.x += f.vx * dt; f.y += f.vy * dt;
+    const k = f.vida / f.dur;
+    if (k >= 1) { fugaces.splice(i, 1); continue; }
+    const a = Math.sin(k * Math.PI);
+    const gr = ctx.createLinearGradient(f.x, f.y, f.x - f.vx * .12, f.y - f.vy * .12);
+    gr.addColorStop(0, `rgba(255,255,255,${a})`); gr.addColorStop(1, "rgba(255,150,220,0)");
+    ctx.strokeStyle = gr; ctx.lineWidth = 2; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(f.x, f.y); ctx.lineTo(f.x - f.vx * .12, f.y - f.vy * .12); ctx.stroke();
+  }
+  ctx.globalCompositeOperation = "source-over";
+}
+requestAnimationFrame(frame);
+
+// Entrada suave
+requestAnimationFrame(() => { cv.classList.add("listo"); document.body.classList.add("listo"); });
 </script>
+</body>
+</html>

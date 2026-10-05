@@ -19,8 +19,8 @@ formulario.addEventListener("submit", (e) => {
     e.preventDefault();
     if(listaUsuarios.find(u => u.email === mail.value && u.password === contra.value)){
         console.log("Hola, usuario encontrado");
-        window.location.href = "../main/main.html";
         alert("Has accedido al sitio");
+        window.location.href = "main/main.html";
     } else {
         console.error("Usuario o contraseña incorrectos");
         alert("Usuario o contraseña incorrectos");

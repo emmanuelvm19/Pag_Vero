@@ -10,6 +10,7 @@ const listaUsuarios = [];
 listaUsuarios.push(new Usuario(1, "Emmanuel", "emmanuel@gmail.com", "emma123"));
 const userGen = new Usuario (2, "Usuario2", "user@gmail.com", "user123");
 listaUsuarios.push(userGen);
+localStorage.setItem("usuariosBD", JSON.stringify(listaUsuarios));
 
 formulario.addEventListener("submit", (e) => {
     e.preventDefault();
