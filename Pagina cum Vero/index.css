@@ -322,18 +322,25 @@ a.boton--regresar:visited, a.boton--regresar:active {
 }
 .grid-cinnamo {
     display: grid;
-    grid-template-columns: repeat(3, 400px);
+    grid-template-columns: repeat(3, 1fr);
     gap: 24px;
     justify-content: center;
-    align-items: start;
+    align-items: center;
     padding-top: 4vh;
-
+    place-items: center; /* Centra vertical y horizontalmente los elementos de la cuadrícula */
+    /* Ponle el límite del tamaño que querías (3 * 400px + gaps) */
+    /* Margen automático para forzar que el bloque entero se centre si sobra pantalla */
+    margin: 0 auto; 
+    /* Evita que se pegue a los bordes en pantallas chicas */
+    width: 80%;
+    padding-inline: 20px; 
+    box-sizing: border-box;
 }
 
 /* Tarjeta cuadrada */
 .flip-card {
-    width: 300px;
-    height: 300px;
+    width: 230px;
+    height: 230px;
     perspective: 800px;      /* da la profundidad 3D al giro */
     cursor: pointer;
     outline: none;
