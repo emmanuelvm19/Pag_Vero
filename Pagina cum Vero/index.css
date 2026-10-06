@@ -177,7 +177,7 @@ button#btn-ver {
 .main--background{
     margin: 0;
     height: 100vh;
-    background-image: url(images/download.png);
+    background-image: url(images/fondo_fnaf_1920x1080_upscayl_2x_upscayl-standard-4x.png);
     background-size: 100% 100%;
     display: flex;
     flex-direction: column;
@@ -194,23 +194,41 @@ button#btn-ver {
 .titulo h1 {
     padding: 0 0 10px 0;   /* quita el padding de 40px de arriba */
 }
+.fnaf--titulo {
+    background: rgba(10, 10, 10);
+    color: #f2f2f2;
+    padding: 16px 40px;
+    border-radius: 18px;
+    border: 3px solid #ff2e7e;                 /* rosa de Foxy, opcional */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+
+.fnaf--titulo h1 {
+    padding: 0 0 6px 0;
+    text-shadow: 3px 3px 0 #ff2e7e;            /* sombra retro, opcional */
+}
+
+.fnaf--titulo p {
+    color: #d4d4d4;
+}
 
 /* Contenedor principal corregido y centrado en toda la pantalla */
 .contenedor-botones {
     display: flex;
-    gap: 20px;
+    gap: 40px;
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
     width: 100%;
+    margin-top: 30px;
 }
 
 /* El enlace que se comportará como un botón enorme */
 .boton-imagen {
     display: block;
     position: relative;
-    width: 220px;         
-    height: 300px;        
+    width: 240px;         
+    height: 320px;        
     border-radius: 15px;  
     overflow: hidden;     
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
@@ -237,6 +255,21 @@ button#btn-ver {
 
 
 /*<-------------------------- Boton atras -------------------------->*/
+.boton--regresar.boton--fnaf {
+    background: rgba(10, 10, 10);
+    color: #f2f2f2;
+    border: 3px solid #ff2e7e;
+    border-radius: 14px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+    text-shadow: 2px 2px 0 #ff2e7e;
+}
+
+.boton--regresar.boton--fnaf:hover {
+    background: #ff2e7e;
+    color: #0a0a0a;
+    text-shadow: none;
+    transform: translateY(-2px);
+}
 .boton--regresar {
     /* Posicionamiento fijo abajo a la derecha */
     position: fixed;
@@ -316,31 +349,25 @@ a.boton--regresar:visited, a.boton--regresar:active {
 /* Cuadrícula 3x2 */
 .cinna--background{
     padding-top: 7vh;
+    background-image: url(images/download.png);
 }
 .cinnamo--title{
     padding: 0;
 }
 .grid-cinnamo {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, 400px);
     gap: 24px;
     justify-content: center;
-    align-items: center;
+    align-items: start;
     padding-top: 4vh;
-    place-items: center; /* Centra vertical y horizontalmente los elementos de la cuadrícula */
-    /* Ponle el límite del tamaño que querías (3 * 400px + gaps) */
-    /* Margen automático para forzar que el bloque entero se centre si sobra pantalla */
-    margin: 0 auto; 
-    /* Evita que se pegue a los bordes en pantallas chicas */
-    width: 80%;
-    padding-inline: 20px; 
-    box-sizing: border-box;
+    place-items: center;
 }
 
 /* Tarjeta cuadrada */
 .flip-card {
-    width: 230px;
-    height: 230px;
+    width: 300px;
+    height: 300px;
     perspective: 800px;      /* da la profundidad 3D al giro */
     cursor: pointer;
     outline: none;
@@ -384,7 +411,7 @@ a.boton--regresar:visited, a.boton--regresar:active {
 
 .flip-front img {
     width: 100%;
-    height: 130px;
+    height: 220px;
     object-fit: contain;
 }
 
@@ -402,13 +429,14 @@ a.boton--regresar:visited, a.boton--regresar:active {
 }
 
 .flip-back h3 {
-    font-size: 1.1rem;
+    font-size: 1.3rem;
     margin-bottom: 8px;
 }
 
 .flip-back p {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     line-height: 1.4;
+    text-align: justify;
 }
 
 /* Efecto al pasar el mouse */
@@ -429,4 +457,513 @@ a.boton--regresar:visited, a.boton--regresar:active {
     .flip-front img {
         height: 100px;
     }
+}
+
+/* ----------------------------------------------------- Artistas favoritos */
+.artistas {
+    --bg: #1a0f16;  --fg: #ffe3ef;  --acc: #ff6fa8;
+    --card: #2a1822;  --back: #ff6fa8;  --back-fg: #1a0f16;
+    min-height: 100vh;
+    padding: 32px 16px 80px;
+    background: var(--bg);
+    color: var(--fg);
+    transition: background .4s, color .4s;
+}
+.artistas[data-tab="ferxxo"] {
+    --bg: #0c1a0f;  --fg: #e6ffd9;  --acc: #8dff3a;
+    --card: #15291a;  --back: #8dff3a;  --back-fg: #0c1a0f;
+}
+.artistas header { text-align: center; margin-bottom: 24px; }
+.artistas h1 { padding: 0 0 6px 0; }   /* anula el padding global de h1 */
+
+/* Pestañas */
+.art-tabs { display: flex; justify-content: center; gap: 12px; margin-bottom: 32px; }
+.art-tab , .btn--back-artist{
+    font: inherit; font-size: 1.1rem; cursor: pointer;
+    padding: 12px 28px; border-radius: 14px;
+    background: transparent; color: var(--fg);
+    border: 3px solid var(--acc);
+    transition: background .2s, color .2s;
+}
+.art-tab[aria-selected="true"] { background: var(--acc); color: var(--back-fg); }
+.art-tab:focus-visible,
+.art-card:focus-visible { outline: 3px solid var(--fg); outline-offset: 3px; }
+
+/* Paneles y cuadrícula */
+.art-panel { display: none; }
+.art-panel.activo { display: block; }
+.art-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 300px);
+    gap: 24px;
+    justify-content: center;
+    margin-top: 80px;
+
+}
+@media (min-width: 700px) { .art-grid { grid-template-columns: repeat(4, 300px); } }
+
+/* Tarjetas que giran */
+.art-card { width: 300px; height: 300px; perspective: 800px; cursor: pointer; border-radius: 20px; }
+.art-inner {
+    position: relative; width: 100%; height: 100%;
+    transition: transform .6s; transform-style: preserve-3d;
+}
+.art-card.volteada .art-inner { transform: rotateY(180deg); }
+.art-front, .art-back {
+    position: absolute; inset: 0;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    border-radius: 20px; border: 3px solid var(--acc);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 12px; text-align: center;
+}
+.art-front { background: var(--card); }
+.art-front img { width: 230px; height: 230px; object-fit: cover; border-radius: 20px;}
+.art-inicial { font-size: 4.5rem; line-height: 1; color: var(--acc); }
+.art-nombre { margin-top: 10px; font-size: 1.1rem; }
+.art-back { background: var(--back); color: var(--back-fg); transform: rotateY(180deg); }
+.art-back h3 { font-size: 1.4rem; margin-bottom: 8px; }
+.art-back p { font-size: .85rem; line-height: 1.4; }
+/* Fondos que cambian según la pestaña */
+.artistas {
+    position: relative;
+    isolation: isolate;          /* mantiene las capas detrás del contenido */
+}
+
+.artistas::before,
+.artistas::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-size: cover;
+    background-position: center;
+    transition: opacity .6s ease;
+}
+
+/* Capa BLACKPINK (visible por defecto) */
+.artistas::before {
+    background:
+        radial-gradient(circle at 15% 20%, rgba(255, 111, 168, .40), transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(255, 111, 168, .30), transparent 50%),
+        repeating-linear-gradient(45deg, rgba(255, 111, 168, .07) 0 18px, transparent 18px 36px),
+        #1a0f16;
+    opacity: 1;
+}
+
+/* Capa FERXXO (oculta por defecto) */
+.artistas::after {
+    background:
+        radial-gradient(circle at 85% 15%, rgba(141, 255, 58, .30), transparent 45%),
+        radial-gradient(circle at 15% 85%, rgba(141, 255, 58, .22), transparent 50%),
+        repeating-linear-gradient(-45deg, rgba(141, 255, 58, .06) 0 18px, transparent 18px 36px),
+        #0c1a0f;
+    opacity: 0;
+}
+
+/* Al cambiar de pestaña se intercambian las capas */
+.artistas[data-tab="ferxxo"]::before { opacity: 0; }
+.artistas[data-tab="ferxxo"]::after  { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+    .artistas::before, .artistas::after { transition: none; }
+}
+@media (max-width: 440px) {
+    .art-grid { grid-template-columns: repeat(2, 150px); gap: 14px; }
+    .art-card { width: 150px; height: 150px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .art-inner, .artistas { transition: none; }
+}
+/*---------------------------------------- Reproductor feliz cumple*/
+.art-player {
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;      /* ahora son dos filas */
+    gap: 8px;
+    padding: 10px 16px;
+    width: 340px;
+    max-width: calc(100vw - 180px);
+    background: var(--card);
+    color: var(--fg);
+    border: 3px solid var(--acc);
+    border-radius: 14px;
+}
+.art-fila {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.art-tema { flex: 1; min-width: 0; }   /* el nombre ocupa el espacio libre */
+.art-reinicio { background: transparent; color: var(--acc); border: 2px solid var(--acc); }
+.art-tiempo { font-size: .75rem; min-width: 36px; text-align: center; }
+#art-progreso { flex: 1; min-width: 0; accent-color: var(--acc); cursor: pointer; }
+.art-play {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    font: inherit;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    border-radius: 50%;
+    background: var(--acc);
+    color: var(--back-fg);
+}
+.art-play:focus-visible { outline: 3px solid var(--fg); outline-offset: 3px; }
+.art-tema {
+    font-size: .85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.art-player input[type="range"] {
+    width: 80px;
+    accent-color: var(--acc);
+}
+@media (max-width: 440px) {
+    .art-player input[type="range"] { display: none; }
+}
+
+.art-cancion {
+    margin-top: 10px;
+    font: inherit;
+    font-size: .8rem;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background: var(--back-fg);   /* invertido respecto a la cara de atrás */
+    color: var(--back);
+}
+.art-cancion:focus-visible { outline: 3px solid var(--back-fg); outline-offset: 3px; }
+
+/* Resalta la tarjeta que está sonando */
+.art-card.sonando .art-front,
+.art-card.sonando .art-back {
+    box-shadow: 0 0 18px var(--acc);
+}
+/*---------------------------------------- Reproductor tarjetas back*/
+.art-cancion {
+    margin-top: 10px;
+    font: inherit;
+    font-size: .8rem;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background: var(--back-fg);   /* invertido respecto a la cara de atrás */
+    color: var(--back);
+}
+.art-cancion:focus-visible { outline: 3px solid var(--back-fg); outline-offset: 3px; }
+
+/* Resalta la tarjeta que está sonando */
+.art-card.sonando .art-front,
+.art-card.sonando .art-back {
+    box-shadow: 0 0 18px var(--acc);
+}
+/* ----------------------------------------------------- Dedicatoria */
+.dedica {
+    position: relative;
+    min-height: 100vh;
+    padding: 40px 20px 220px;
+    overflow: hidden;
+    text-align: center;
+
+    background-color: #07090c;   /* color de respaldo si la imagen no carga */
+    background-image:
+        linear-gradient(rgba(0, 0, 0, .45), rgba(0, 0, 0, .45)),
+        url(images/La_oficina.webp);          /* ← cambia por tu imagen */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+    height: 100dvh;             /* en celular respeta la barra del navegador */
+    padding: 30px 20px 160px;   /* antes 40px 20px 220px */
+    overflow: hidden;
+}
+
+.dedica__titulo {
+    padding: 0 0 32px;
+    font-size: clamp(1.6rem, 4vw, 3rem);
+    color: #f3ecd2;
+    text-shadow: 3px 3px 0 #000;
+}
+
+/* Dos tarjetas con un hueco en el medio para Freddy */
+.dedica__cartas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 200px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.dedica__carta {
+    background: #f4f1e6;
+    color: #3b2f25;
+    padding: 28px 24px;
+    border-radius: 18px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .55);
+    font-size: clamp(.8rem, 1.2vw, 1rem);
+    line-height: 1.6;
+    text-align: center;
+}
+.dedica__carta--foto {
+    position: relative;
+    padding: 0;               /* quita el margen interno para que la foto llegue al borde */
+    overflow: hidden;         /* recorta la foto con las esquinas redondeadas */
+    min-height: 320px;        /* respaldo por si la carta del lado queda muy corta */
+    border: 8px solid #f4f1e6;
+}
+
+.dedica__carta--foto img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;        /* llena la carta sin deformar la foto */
+    object-position: center 25%;   /* prioriza la cara si la foto es vertical */
+}
+
+/* Freddy en el centro, parado sobre el piso */
+.dedica__freddy {
+    position: absolute;
+    left: 50%;
+    bottom: 70px;
+    transform: translateX(-50%);
+    height: 260px;
+    z-index: 2;
+}
+
+/* Piso de cuadros en perspectiva */
+.dedica__piso {
+    position: absolute;
+    left: -10%;
+    right: -10%;
+    bottom: -80px;
+    height: 260px;
+    background: conic-gradient(#0c0c0c 25%, #d8c9c4 0 50%, #0c0c0c 0 75%, #d8c9c4 0) 0 0 / 90px 90px;
+    transform: perspective(500px) rotateX(62deg);
+    transform-origin: bottom;
+    -webkit-mask-image: linear-gradient(transparent, #000 45%);
+            mask-image: linear-gradient(transparent, #000 45%);
+}
+
+/* Celular: tarjetas apiladas y Freddy debajo */
+@media (max-width: 800px) {
+    .dedica { padding-bottom: 300px; }
+    .dedica__cartas { grid-template-columns: 1fr; row-gap: 20px;}
+    .dedica__freddy { height: 180px; bottom: 60px; }
+    .dedica__piso { height: 180px; bottom: -50px; }
+}
+/* =====================================================================
+   RESPONSIVE  (pegar al final de index.css)
+   ===================================================================== */
+
+/* ---------- Base ---------- */
+html { -webkit-text-size-adjust: 100%; }
+body { overflow-x: hidden; }          /* evita el scroll lateral */
+img  { max-width: 100%; }
+
+/* ---------- Login ---------- */
+.login--background {
+    height: auto;
+    min-height: 100dvh;
+    align-items: center;               /* antes se estiraba a toda la altura */
+    background-size: cover;            /* antes 100% 100% deformaba la imagen */
+    background-position: center;
+}
+.login {
+    height: auto;
+    max-height: none;
+    width: min(92%, 500px);
+    margin: 20px 0;
+    padding-bottom: 40px;
+}
+
+/* ---------- Peluches y cinnamorolls (.main--background) ---------- */
+.main--background {
+    height: auto;                      /* antes 100vh fijo: el contenido se salía del fondo */
+    min-height: 100dvh;
+    background-size: cover;
+    background-position: center;
+    padding-bottom: 100px;             /* espacio para el botón Volver */
+}
+
+/* Tarjetas de peluches: tamaño fluido, misma proporción 3:4 */
+.boton-imagen {
+    width: clamp(150px, 20vw, 240px);
+    height: auto;
+    aspect-ratio: 3 / 4;
+}
+
+/* Cinnamorolls: la cuadrícula ya no mide 1200px fijos */
+.grid-cinnamo {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    max-width: 1100px;
+    margin: 0 auto;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+.flip-card {
+    width: min(300px, 86vw);
+    height: min(300px, 86vw);
+}
+
+/* ---------- Artistas ---------- */
+.art-card {
+    width: min(300px, 86vw);
+    height: min(300px, 86vw);
+}
+.art-front img {
+    width: min(230px, 76%);
+    height: auto;
+    aspect-ratio: 1 / 1;               /* antes 230px fijos: se salía en tarjetas pequeñas */
+}
+.art-tabs { flex-wrap: wrap; }
+.artistas { padding-bottom: 150px; }   /* que el reproductor no tape las tarjetas */
+
+@media (max-width: 1320px) {
+    .art-grid { grid-template-columns: repeat(2, minmax(0, 300px)); }
+}
+
+/* ---------- Dedicatoria: tablet ---------- */
+@media (min-width: 901px) and (max-width: 1100px) {
+    .dedica__cartas { column-gap: 170px; padding: 0 10px; }
+    .dedica__freddy { height: 230px; }
+}
+
+/* =====================================================================
+   TABLET Y CELULAR (hasta 900px)
+   ===================================================================== */
+@media (max-width: 900px) {
+    /* Dedicatoria: sin altura fija, cartas apiladas, Freddy abajo */
+    .dedica {
+        height: auto;
+        min-height: 100dvh;
+        padding: 30px 16px 320px;
+    }
+    .dedica__cartas {
+        grid-template-columns: 1fr;
+        row-gap: 20px;
+        column-gap: 0;
+        max-width: 560px;
+    }
+    .dedica__carta--foto { min-height: 380px; }
+    .dedica__freddy { height: 200px; bottom: 60px; }
+    .dedica__piso   { height: 200px; bottom: -60px; }
+}
+
+/* =====================================================================
+   CELULAR (hasta 700px)
+   ===================================================================== */
+@media (max-width: 700px) {
+    h1 { font-size: clamp(1.5rem, 7vw, 2.2rem); }
+
+    /* Peluches: 2 por fila */
+    .main--background { padding-top: 40px; gap: 20px; }
+    .contenedor-botones { gap: 16px; margin-top: 10px; padding: 0 12px; }
+    .boton-imagen { width: calc(50% - 16px); max-width: 220px; }
+    .fnaf--titulo {
+        max-width: 92%;
+        padding: 12px 20px;
+    }
+
+    /* Cinnamorolls: 1 por fila */
+    .cinna--background { padding-top: 30px; }
+    .grid-cinnamo {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 18px;
+    }
+    .flip-front img { height: min(220px, 60vw); }
+    .flip-back p { font-size: .8rem; }
+
+    /* Artistas: 1 por fila */
+    .art-grid {
+        grid-template-columns: minmax(0, 300px);
+        gap: 18px;
+        margin-top: 30px;
+    }
+    .art-tab { padding: 10px 18px; font-size: .95rem; }
+}
+
+/* =====================================================================
+   CELULAR CHICO (hasta 600px)
+   ===================================================================== */
+@media (max-width: 600px) {
+    /* Botón Volver más pequeño en todas las páginas */
+    .boton--regresar {
+        bottom: 12px;
+        right: 12px;
+        padding: 10px 18px;
+        font-size: 14px;
+    }
+
+    /* Reproductor: ancho completo, encima del botón Volver */
+    .art-player {
+        left: 10px;
+        right: 10px;
+        bottom: 66px;
+        width: auto;
+        max-width: none;
+        padding: 8px 12px;
+    }
+    .art-player #art-vol { display: none; }   /* el volumen se usa con los botones del cel */
+    #art-progreso { display: block; }         /* antes se ocultaba junto con el volumen */
+    .artistas { padding-bottom: 230px; }
+
+    /* Login: campos más anchos dentro de la tarjeta */
+    .input-group,
+    .options--login,
+    .btn--login { width: 86%; }
+    .options--login { flex-wrap: wrap; gap: 6px; }
+}
+
+@media (max-width: 480px) {
+    .minecraft-splash { font-size: 12px; right: -50px; top: 64px; }
+    .dedica__titulo { padding-bottom: 20px; }
+}
+/* =====================================================================
+   CINNAMOROLLS SIN SCROLL (computador y tablet)
+   ===================================================================== */
+@media (min-width: 701px) {
+    /* El lado de la tarjeta se calcula para que quepan 3 columnas y 2 filas */
+    .cinna--background {
+        --lado: clamp(120px, min(calc((100dvh - 270px) / 2), calc((100vw - 96px) / 3)), 300px);
+        height: 100dvh;
+        min-height: 0;
+        padding-bottom: 0;
+        overflow: hidden;
+    }
+    body:has(.cinna--background) { overflow: hidden; }
+
+    .cinna--background .grid-cinnamo {
+        grid-template-columns: repeat(3, var(--lado));
+        gap: 24px;
+        max-width: none;
+        padding: 4vh 0 0;
+    }
+
+    .cinna--background .flip-card {
+        width: var(--lado);
+        height: var(--lado);
+    }
+
+    .cinna--background .flip-front img {
+        width: 100%;
+        height: calc(var(--lado) * .72);
+    }
+    .cinna--background .flip-front span { font-size: clamp(.8rem, calc(var(--lado) / 18), 1.1rem); }
+
+    /* Texto de atrás: se achica con la tarjeta y tiene scroll interno de respaldo */
+    .cinna--background .flip-back {
+        padding: 10px 14px;
+        overflow-y: auto;
+    }
+    .cinna--background .flip-back h3 { font-size: clamp(.9rem, calc(var(--lado) / 15), 1.3rem); margin-bottom: 4px; }
+    .cinna--background .flip-back p  { font-size: clamp(.62rem, calc(var(--lado) / 22), .9rem); line-height: 1.35; }
 }

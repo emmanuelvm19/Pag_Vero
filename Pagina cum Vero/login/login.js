@@ -1,4 +1,4 @@
-import { Usuario } from "../signup/Usuario.js";
+import { cargarUsuarios } from "../signup/usuarios.js";
 
 const formulario = document.getElementById("login");
 const botonVer = document.getElementById("btn-ver");
@@ -6,13 +6,9 @@ const iconoOjo = document.getElementById("icono-ojo");
 const mail = document.getElementById("correo");
 const contra = document.getElementById("password");
 
-// Traemos los datos almacenados
-const datosEnNavegador = localStorage.getItem("usuariosBD");
-const objetosPlanos = datosEnNavegador ? JSON.parse(datosEnNavegador) : [];
+const listaUsuarios = cargarUsuarios();   // ya incluye los quemados
 
-// Convertimos a objetos de clase Usuario
-const listaUsuarios = objetosPlanos.map(obj => new Usuario(obj.id, obj.name, obj.email, obj.password));
-
+// ...el resto (submit y botonVer) se queda igual
 console.log(listaUsuarios);
 
 formulario.addEventListener("submit", (e) => {

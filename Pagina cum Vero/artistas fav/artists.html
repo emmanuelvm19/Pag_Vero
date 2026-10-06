@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artistas favoritos</title>
+<link rel="stylesheet" href="../index.css">
+<script src="artists.js" defer></script>
+</head>
+<body>
+<div class="artistas" data-tab="blackpink">
+
+    <header>
+        <h1>Tus artistas favoritos</h1>
+        <p>Elige uno para darle vuelta a las tarjetas</p>
+    </header>
+
+    <div class="art-tabs" role="tablist">
+        <button class="art-tab" role="tab" aria-selected="true" data-target="blackpink">BLACKPINK</button>
+        <button class="art-tab" role="tab" aria-selected="false" data-target="ferxxo">Ferxxo</button>
+    </div>
+
+    <!-- ============ BLACKPINK ============ -->
+    <section class="art-panel activo" id="blackpink">
+        <div class="art-grid">
+            <div class="art-card" tabindex="0"><div class="art-inner">
+                <div class="art-front"><img src="../images/Jisoo.jpg"><span class="art-nombre">Jisoo</span></div>
+                <div class="art-back"><h3>Jisoo</h3><p>Nació el 3 de enero de 1995. Tiene una personalidad muy divertida y espontánea, ama los videojuegos y es conocida como "Turtle Rabbit Kim". Aunque le teme las alturas, suele ser la más valiente y serena ante situaciones de alta tensión..</p></div>
+            </div></div>
+            <div class="art-card" tabindex="0"><div class="art-inner">
+                <div class="art-front"><img src="../images/Jennie.jpg"><span class="art-nombre">Jennie</span></div>
+                <div class="art-back"><h3>Jennie</h3><p>Nació el 16 de enero de 1996. Vivió varios años en Nueva Zelanda, lo que le otorga una fluidez impecable en inglés. <br> Pese a proyectar una presencia imponente en el escenario, en su día a día es sumamente tierna, tímida y protectora con sus mascotas.</p></div>
+            </div></div>
+            <div class="art-card" tabindex="0"><div class="art-inner">
+                <div class="art-front"><img src="../images/Rose.jpg"><span class="art-nombre">Rosé</span></div>
+                <div class="art-back"><h3>Rosé</h3><p>Nació el 11 de febrero de 1997. Creció en Melbourne, Australia, tras nacer en Nueva Zelanda, manteniendo un fuerte vínculo con su cultura occidental. <br>Además de cantar, posee gran destreza tocando la guitarra y el piano, destacando por ser zurda en múltiples facetas.</p></div>
+            </div></div>
+            <div class="art-card" tabindex="0"><div class="art-inner">
+                <div class="art-front"><img src="../images/Lisa.jpg"><span class="art-nombre">Lisa</span></div>
+                <div class="art-back"><h3>Lisa</h3><p>Originaria de Tailandia, hizo historia al convertirse en la primera artista extranjera en debutar bajo la agencia YG. <br>Fuera de los escenarios, es una apasionada de la fotografía, ama profundamente a los gatos y atesora una gran colección de cámaras.</p></div>
+            </div></div>
+        </div>
+    </section>
+
+    <!-- ============ FERXXO ============ -->
+    <section class="art-panel" id="ferxxo">
+        <div class="art-grid">
+            <div class="art-card" tabindex="0"><div class="art-inner">
+                <div class="art-front"><img src="../images/feid 1.jpg"><span class="art-nombre">Feid</span></div>
+                <div class="art-back"><h3>Feid</h3><p>Salomón Villada. Antes de ser famoso, empezó escribiendo éxitos mundiales para otros grandes artistas como J Balvin ("Ginza") y Reykon ("Secretos").<br> El nombre artístico "Ferxxo" nació porque su colega *Sky Rompiendo* comenzó a llamarlo así combinando su nombre Salomón con una jerga cercana.</p></div>
+            </div></div>
+            <div class="art-card" tabindex="0"><div class="art-inner">
+                <div class="art-front"><img src="../images/feid 2.jpg"><span class="art-nombre">Tema 1</span></div>
+                <div class="art-back">
+                    <h3>Feid, ATL Jacob - Luna</h3>
+                    <button type="button" class="art-cancion"
+                            data-src="../images/audio/Feid, ATL Jacob - LUNA (Official Video).mp3"
+                            data-titulo="Feid - Nombre de la canción 1">▶ Reproducir</button>
+                </div>
+            </div></div>
+            <div class="art-card" tabindex="0"><div class="art-inner">
+                <div class="art-front"><img src="../images/feid 3.jpg"><span class="art-nombre">Tema 2</span></div>
+                <div class="art-back">
+                    <h3>Feid, Young Miko - Classy 101</h3>
+                    <button type="button" class="art-cancion"
+                            data-src="../images/audio/Feid, Young Miko - Classy 101 (Official Video).mp3"
+                            data-titulo="Feid - Nombre de la canción 1">▶ Reproducir</button>
+                </div>
+            </div></div>
+            <div class="art-card" tabindex="0"><div class="art-inner">
+                <div class="art-front"><img src="../images/feid 4.jpg"><span class="art-nombre">Tema 3</span></div>
+                <div class="art-back">
+                    <h3>PERRO NEGRO</h3>
+                    <button type="button" class="art-cancion"
+                            data-src="../images/audio/PERRO NEGRO.mp3"
+                            data-titulo="Feid - Nombre de la canción 1">▶ Reproducir</button>
+                </div>
+            </div></div>
+        </div>
+    </section>
+    <div class="art-player">
+    <div class="art-fila">
+        <button class="art-play" id="art-play" aria-label="Reproducir">▶</button>
+        <button class="art-play art-reinicio" id="art-reinicio" aria-label="Volver al inicio">⏮</button>
+        <span class="art-tema">Feid - Feliz Cumpleaños Ferxxo</span>
+        <input type="range" id="art-vol" min="0" max="1" step="0.05" value="0.5" aria-label="Volumen">
+    </div>
+    <div class="art-fila">
+        <span class="art-tiempo" id="art-actual">0:00</span>
+        <input type="range" id="art-progreso" min="0" max="100" step="0.1" value="0" aria-label="Posición de la canción">
+        <span class="art-tiempo" id="art-total">0:00</span>
+    </div>
+    <audio id="art-audio" src="../images/audio/Feid - Feliz Cumpleaños Ferxxo (Official Video).mp3" loop preload="metadata"></audio>
+</div>
+    <a href="../main/main.html" class="boton--regresar btn--back-artist">Volver</a>
+
+</div>
+</body>
+</html>
